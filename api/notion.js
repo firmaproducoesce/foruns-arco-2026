@@ -78,6 +78,18 @@ module.exports = async (req, res) => {
       return res.json({ ok: true, evento: mapEvento(page) });
     }
 
+    // DEBUG: test raw query
+    if (action === 'debug') {
+      const brand = req.query.brand || req.body?.brand || 'COC';
+      const pid = EVENT_PAGES[brand];
+      try {
+        const r = await notion.databases.query({ database_id: RADAR_DB, page_size: 3 });
+        return res.json({ ok: true, brand, pid, db: RADAR_DB, count: r.results.length, first: r.results[0]?.id });
+      } catch(e) {
+        return res.json({ ok: false, error: e.message, code: e.code, db: RADAR_DB });
+      }
+    }
+
     // GET tasks from Radar Operacional filtered by event
     if (action === 'tasks') {
       const brand = req.query.brand || req.body?.brand;
