@@ -3,14 +3,14 @@ const { Client } = require('@notionhq/client');
 // Banco real: "Gerenciamento de Atividades" (Radar Operacional da Firma)
 const RADAR_DB = '25d0d85775f78087b0beed6f8dab67d4';
 
-// IDs dos cards de evento
+// IDs dos cards de evento (com dashes — obrigatório para filtro de relation)
 const EVENT_PAGES = {
-  'COC':                  '3730d85775f780e6b8e3f0736167c7ce',
-  'SAS':                  '2a20d85775f780af82d5ef02f64ecb84',
-  'CONQUISTA':            '2e00d85775f78069855ed1e0f031d8db',
-  'INTERNATIONAL SCHOOL': 'ae70d85775f783f3806581d7a5f9cce7',
-  'SAE':                  '3730d85775f780a587eacc07ee48ec51',
-  'POSITIVO':             '3730d85775f78063a3b7d8fd60c9bfa1',
+  'COC':                  '3730d857-75f7-80e6-b8e3-f0736167c7ce',
+  'SAS':                  '2a20d857-75f7-80af-82d5-ef02f64ecb84',
+  'CONQUISTA':            '2e00d857-75f7-8069-855e-d1e0f031d8db',
+  'INTERNATIONAL SCHOOL': 'ae70d857-75f7-83f3-8065-81d7a5f9cce7',
+  'SAE':                  '3730d857-75f7-80a5-87ea-cc07ee48ec51',
+  'POSITIVO':             '3730d857-75f7-8063-a3b7-d8fd60c9bfa1',
 };
 
 function n() { return new Client({ auth: process.env.NOTION_TOKEN }); }
