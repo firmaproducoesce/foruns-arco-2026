@@ -260,12 +260,16 @@ async function api(params, body=null) {
 }
 
 async function loadEvent(brandId) {
-  S.view='event'; S.brand=brandId;  S.evento={};
+  S.view='event'; S.brand=brandId; S.tasks=[]; S.evento={};
   renderShell();
   loading(`Carregando ${brandId} do Notion...`);
   try {
-    const er = await api({action:'evento', brand:brandId});
+    const [er, tr] = await Promise.all([
+      api({action:'evento', brand:brandId}),
+      api({action:'tasks',  brand:brandId}),
+    ]);
     S.evento = er.evento || {};
+    S.tasks  = tr.tasks  || [];
     renderEvent();
   } catch(e) { showErr(e.message); }
 }
