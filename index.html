@@ -553,10 +553,43 @@ function toast(msg,type='info'){const i={ok:'✅',err:'❌',info:'ℹ️'};const
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 
 // ─────────────────────────────────────────────────
+//  AUTO-REFRESH
+// ─────────────────────────────────────────────────
+let _autoRefresh = null;
+
+function startAutoRefresh() {
+  stopAutoRefresh();
+  _autoRefresh = setInterval(() => {
+    if (S.view === 'event' && S.brand) {
+      // Silent refresh: update data without showing loading screen
+      Promise.all([
+        api({action:'evento', brand:S.brand}),
+        api({action:'tasks',  brand:S.brand}),
+      ]).then(([er, tr]) => {
+        const prevTaskCount = S.tasks.length;
+        S.evento = er.evento || S.evento;
+        S.tasks  = tr.tasks  || S.tasks;
+        // Only re-render if data changed
+        if (JSON.stringify(tr.tasks) !== JSON.stringify(S.tasks) || prevTaskCount !== S.tasks.length) {
+          renderEvent();
+        } else {
+          renderEvent(); // always re-render to keep fresh
+        }
+      }).catch(() => {}); // silent fail
+    }
+  }, 10000);
+}
+
+function stopAutoRefresh() {
+  if (_autoRefresh) { clearInterval(_autoRefresh); _autoRefresh = null; }
+}
+
+// ─────────────────────────────────────────────────
 //  BOOT
 // ─────────────────────────────────────────────────
 renderNav();
 renderHome();
+startAutoRefresh();
 </script>
 </body>
 </html>
