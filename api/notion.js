@@ -78,15 +78,30 @@ module.exports = async (req, res) => {
       return res.json({ ok: true, evento: mapEvento(page) });
     }
 
-    // DEBUG: test raw query
+    // DEBUG: test filter query
     if (action === 'debug') {
-      const brand = req.query.brand || req.body?.brand || 'COC';
+      const brand = req.query.brand || 'COC';
       const pid = EVENT_PAGES[brand];
       try {
-        const r = await notion.databases.query({ database_id: RADAR_DB, page_size: 3 });
-        return res.json({ ok: true, brand, pid, db: RADAR_DB, count: r.results.length, first: r.results[0]?.id });
+        // Test without filter
+        const all = await notion.databases.query({ database_id: RADAR_DB, page_size: 5 });
+        // Test with filter
+        const filtered = await notion.databases.query({
+          database_id: RADAR_DB,
+          filter: { property: 'Eventos', relation: { contains: pid } },
+          page_size: 5
+        });
+        // Get first item's Eventos relation raw
+        const firstProps = all.results[0]?.properties?.Eventos;
+        return res.json({
+          ok: true, brand, pid,
+          allCount: all.results.length,
+          filteredCount: filtered.results.length,
+          firstEventosRaw: JSON.stringify(firstProps),
+          firstId: all.results[0]?.id
+        });
       } catch(e) {
-        return res.json({ ok: false, error: e.message, code: e.code, db: RADAR_DB });
+        return res.json({ ok: false, error: e.message, db: RADAR_DB, pid });
       }
     }
 
