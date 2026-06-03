@@ -242,7 +242,7 @@ const STATUS_CLS = {'✅ OK':'s-ok','⚠️ Atenção':'s-atencao','🔴 Crític
 // ─────────────────────────────────────────────────
 //  STATE
 // ─────────────────────────────────────────────────
-let S = {view:'home',brand:null,evento:{},isAdmin:false,adminCb:null};
+let S = {view:'home',brand:null,tasks:[],evento:{},isAdmin:false,adminCb:null};
 
 // ─────────────────────────────────────────────────
 //  API
@@ -390,12 +390,136 @@ function renderEvent(){
     <!-- KANBAN -->
     <div class="kw">
       <div class="kh">
-        <h2>📌 Tarefas</h2>
-        ${S.isAdmin?`<button class="btn btn-red btn-sm" style="margin-left:auto;" onclick="opTask()">+ Nova Tarefa</button>`:''}
+        <h2>📌 Ações Operacionais</h2>
+        <span style="font-size:11px;color:var(--muted);">${S.tasks.length} tarefa(s)</span>
+        ${S.isAdmin?`<button class="btn btn-red btn-sm" style="margin-left:auto;" onclick="opTask()">+ Nova Ação</button>`:''}
       </div>
       <div class="kb" id="kb"></div>
     </div>`;
+  renderKanban();
+}
 
+// ─────────────────────────────────────────────────
+//  KANBAN
+// ─────────────────────────────────────────────────
+const STAGES = ['Backlog | Eventos','Não iniciada','Em andamento','Stand-by','Concluído','Cancelado'];
+const SC = {'Backlog | Eventos':'#94a3b8','Não iniciada':'#64748b','Em andamento':'#3b82f6','Stand-by':'#f59e0b','Concluído':'#10b981','Cancelado':'#ef4444'};
+
+function renderKanban(){
+  const c=bc(); const kb=document.getElementById('kb'); if(!kb)return; kb.innerHTML='';
+  STAGES.forEach(stage=>{
+    const st=S.tasks.filter(t=>t.stage===stage); const sc=SC[stage];
+    const col=document.createElement('div'); col.className='kc'; col.dataset.stage=stage;
+    col.innerHTML=`<div class="kch" style="background:${sc};">${stage}<span class="kcc">${st.length}</span></div>
+      <div class="kcb" id="kcb-${stage.replace(/[ |]/g,'_')}"
+        ondragover="event.preventDefault();this.classList.add('drag-over')"
+        ondragleave="this.classList.remove('drag-over')"
+        ondrop="dropTask(event,'${stage}')"></div>
+      ${S.isAdmin?`<div class="kadd" onclick="opTask('${stage}')">＋ Adicionar</div>`:''}`;
+    kb.appendChild(col);
+    const body=document.getElementById('kcb-'+stage.replace(/[ |]/g,'_'));
+    st.forEach(t=>body.appendChild(buildCard(t,c)));
+  });
+}
+
+function buildCard(t,c){
+  const card=document.createElement('div'); card.className='kcard'; card.dataset.tid=t.id;
+  card.draggable=true; card.style.borderLeftColor=c;
+  const pc={'Imediata':'ph','Alta':'ph','Média':'pm','Baixa':'pl'}[t.priority]||'pm';
+  const today=new Date(); today.setHours(0,0,0,0);
+  let dh='';
+  if(t.dueDate){const d=new Date(t.dueDate);d.setHours(0,0,0,0);const df=Math.ceil((d-today)/86400000);const dc=df<0?'#ef4444':df<=2?'#f59e0b':'#6b7280';dh=`<span style="color:${dc};font-size:10.5px;">${df<0?'⚠️':'📅'} ${t.dueDate}</span>`;}
+  card.innerHTML=`<div class="kct">${esc(t.title)}</div>
+    <div class="kcm"><span class="pri ${pc}">${t.priority||'Média'}</span>${dh}</div>
+    ${t.areas?.length?`<div style="font-size:10px;color:var(--muted);margin-top:3px;">🏢 ${t.areas.slice(0,2).join(', ')}${t.areas.length>2?' +'+(t.areas.length-2):''}</div>`:''}
+    ${t.description?`<div style="font-size:11px;color:var(--muted);margin-top:4px;line-height:1.4;">${esc(t.description.substring(0,65))}${t.description.length>65?'…':''}</div>`:''}`;
+  card.ondragstart=e=>{card.classList.add('dragging');e.dataTransfer.setData('tid',t.id);};
+  card.ondragend=()=>card.classList.remove('dragging');
+  card.onclick=()=>opDetail(t);
+  return card;
+}
+
+async function dropTask(e,newStage){
+  e.preventDefault(); e.currentTarget.classList.remove('drag-over');
+  const tid=e.dataTransfer.getData('tid');
+  const task=S.tasks.find(t=>t.id===tid);
+  if(!task||task.stage===newStage)return;
+  if(!S.isAdmin){toast('Ative o admin para mover tarefas.','err');return;}
+  S.tasks=S.tasks.map(t=>t.id===tid?{...t,stage:newStage}:t); renderKanban();
+  try{await api({action:'update-stage'},{id:tid,stage:newStage});toast(`Movido: "${newStage}"!`,'ok');}
+  catch(e){toast('Erro: '+e.message,'err');}
+}
+
+// ─────────────────────────────────────────────────
+//  TASK DETAIL
+// ─────────────────────────────────────────────────
+function opDetail(t){
+  const sc=SC[t.stage]||'#64748b';
+  const pc={'Imediata':'ph','Alta':'ph','Média':'pm','Baixa':'pl'}[t.priority]||'pm';
+  showModal(t.title,`
+    <div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:12px;">
+      <span style="background:${sc}22;color:${sc};border-radius:20px;padding:3px 9px;font-size:11px;font-weight:600;">${t.stage}</span>
+      <span class="pri ${pc}">${t.priority}</span>
+      ${t.dueDate?`<span style="font-size:11px;color:var(--muted);">📅 ${t.dueDate}</span>`:''}
+    </div>
+    ${t.areas?.length?`<div style="font-size:12px;color:var(--muted);margin-bottom:10px;">🏢 ${t.areas.join(', ')}</div>`:''}
+    ${t.tags?.length?`<div style="font-size:12px;color:var(--muted);margin-bottom:10px;">🏷 ${t.tags.join(', ')}</div>`:''}
+    ${t.description?`<p style="font-size:13px;line-height:1.65;background:#f8f9fb;border-radius:8px;padding:11px;margin-bottom:10px;">${esc(t.description)}</p>`:''}
+    <a href="${t.url||'#'}" target="_blank" class="btn btn-gh btn-sm">🔗 Ver no Notion</a>`,
+  S.isAdmin?[
+    {label:'✏️ Editar',cls:'btn-dk',act:`clModal();opEdit(${JSON.stringify(JSON.stringify(t))})`},
+    {label:'🗑️ Remover',cls:'btn-dn',act:`clModal();delTask('${t.id}')`}
+  ]:[]);
+}
+
+// ─────────────────────────────────────────────────
+//  CREATE / EDIT TASK
+// ─────────────────────────────────────────────────
+const AREAS=['Produção','Projetos','Atendimento Comercial','Supervisão','Compras','House','Estrutural','Cenografia','Operacional','ADM','Orçamentista','Pós-Venda','Produtora','Agência','Processos','Heads','financeiro','Brand Experience'];
+const PRIORIDADES=['Imediata','Alta','Média','Baixa'];
+const TAGS_OPT=['Demanda de Evento/Projeto','Demanda Interna','Demanda de Venda','Reunião'];
+
+function opTask(ds=null){if(!S.isAdmin){reqAdmin(()=>opTask(ds));return;}showModal('Nova Ação Operacional',taskForm(null,ds),[{label:'Cancelar',cls:'btn-gh',act:'clModal()'},{label:'Salvar no Notion',cls:'btn-red',act:'sbCreate()'}]);}
+function opEdit(tj){if(!S.isAdmin)return;const t=JSON.parse(tj);showModal('Editar Ação',taskForm(t,null),[{label:'Cancelar',cls:'btn-gh',act:'clModal()'},{label:'Salvar no Notion',cls:'btn-red',act:`sbEdit('${t.id}')`}]);}
+
+function taskForm(t,ds){
+  const g=k=>t?t[k]||'':'';
+  const ga=k=>t&&t[k]?t[k]:[];
+  return `
+  <div class="fg"><label>Ação Operacional *</label><input type="text" id="tt" value="${esc(g('title'))}" placeholder="Descreva a ação..."></div>
+  <div class="fr">
+    <div class="fg"><label>Funil</label><select id="te">${STAGES.map(s=>`<option value="${s}" ${(t?t.stage:ds)===s?'selected':''}>${s}</option>`).join('')}</select></div>
+    <div class="fg"><label>Prioridade</label><select id="tp">${PRIORIDADES.map(p=>`<option value="${p}" ${g('priority')===p?'selected':''}>${p}</option>`).join('')}</select></div>
+  </div>
+  <div class="fr">
+    <div class="fg"><label>Prazo</label><input type="date" id="td" value="${g('dueDate')}"></div>
+    <div class="fg"><label>Tags</label><select id="ttag" multiple style="height:72px;">${TAGS_OPT.map(tg=>`<option value="${tg}" ${ga('tags').includes(tg)?'selected':''}>${tg}</option>`).join('')}</select></div>
+  </div>
+  <div class="fg"><label>Área Responsável</label><select id="ta" multiple style="height:90px;">${AREAS.map(a=>`<option value="${a}" ${ga('areas').includes(a)?'selected':''}>${a}</option>`).join('')}</select><div style="font-size:10.5px;color:var(--muted);margin-top:3px;">Segure Ctrl/Cmd para múltiplas</div></div>
+  <div class="fg"><label>Detalhamento</label><textarea id="tde" rows="3" placeholder="Detalhes, contexto...">${esc(g('description'))}</textarea></div>`;
+}
+
+function gForm(){
+  const sel=id=>{const el=document.getElementById(id);if(!el)return[];return Array.from(el.selectedOptions).map(o=>o.value);};
+  return{title:document.getElementById('tt')?.value.trim()||'',stage:document.getElementById('te')?.value||'Não iniciada',priority:document.getElementById('tp')?.value||'Média',dueDate:document.getElementById('td')?.value||'',areas:sel('ta'),tags:sel('ttag'),description:document.getElementById('tde')?.value.trim()||''};
+}
+
+async function sbCreate(){
+  const d=gForm();if(!d.title){toast('Informe a ação.','err');return;}
+  clModal();toast('Criando no Notion...','info');
+  try{await api({action:'create-task'},{...d,brand:S.brand});toast('Criado!','ok');await loadEvent(S.brand);}
+  catch(e){toast('Erro: '+e.message,'err');}
+}
+async function sbEdit(tid){
+  const d=gForm();if(!d.title){toast('Informe a ação.','err');return;}
+  clModal();toast('Salvando...','info');
+  try{await api({action:'update-task'},{...d,id:tid});S.tasks=S.tasks.map(t=>t.id===tid?{...t,...d}:t);renderKanban();toast('Salvo!','ok');}
+  catch(e){toast('Erro: '+e.message,'err');}
+}
+async function delTask(tid){
+  if(!confirm('Remover do Notion?'))return;
+  try{await api({action:'delete-task'},{id:tid});S.tasks=S.tasks.filter(t=>t.id!==tid);renderKanban();toast('Removida!','ok');}
+  catch(e){toast('Erro: '+e.message,'err');}
 }
 
 // ─────────────────────────────────────────────────
