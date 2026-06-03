@@ -93,10 +93,12 @@ module.exports = async (req, res) => {
         });
         // Get first item's Eventos relation raw
         const firstProps = all.results[0]?.properties?.Eventos;
+        const mapped = filtered.results.map(mapTask);
         return res.json({
           ok: true, brand, pid,
           allCount: all.results.length,
           filteredCount: filtered.results.length,
+          mapped,
           firstEventosRaw: JSON.stringify(firstProps),
           firstId: all.results[0]?.id
         });
