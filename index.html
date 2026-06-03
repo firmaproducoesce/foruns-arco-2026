@@ -227,9 +227,7 @@ label{font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:4
 // ─────────────────────────────────────────────────
 const ADMIN_PASS = 'firmaprod123';
 const API = '/api/notion';
-const NOTION_TASKS  = 'https://www.notion.so/40539b688ad54845b11da21e94f83abd';
 const NOTION_EVENTOS= 'https://www.notion.so/acfacdaf075046408cc74cc10d20167d';
-const NOTION_RADAR  = 'https://www.notion.so/9d154ba0873449cdb95638de8b21fab1';
 
 const BRANDS = [
   { id:'COC',                  name:'COC - Fórum Mantenedores 2026',               color:'#46a054' },
@@ -239,19 +237,12 @@ const BRANDS = [
   { id:'SAE',                  name:'SAE - Fórum Mantenedores 2026',                color:'#6f2e8b' },
   { id:'POSITIVO',             name:'SISTEMA POSITIVO - Fórum Mantenedores 2026',  color:'#bd583b' },
 ];
-const STAGES = ['Backlog | Eventos','Não iniciada','Em andamento','Stand-by','Concluído','Cancelado'];
-const SC = {'Backlog | Eventos':'#94a3b8','Não iniciada':'#64748b','Em andamento':'#3b82f6','Stand-by':'#f59e0b','Concluído':'#10b981','Cancelado':'#ef4444'};
-const STAGES_DONE = ['Concluído','Cancelado'];
-const AREAS = ['Produção','Projetos','Atendimento Comercial','Supervisão','Compras','House','Estrutural','Cenografia','A/V e Tecnologia','Operacional','ADM','Orçamentista','Pós-Venda','Produtora','Agência','Processos','Heads','financeiro','Brand Experience'];
-const PRIORIDADES = ['Imediata','Alta','Média','Baixa'];
-const TAGS_OPT = ['Demanda de Evento/Projeto','Demanda Interna','Demanda de Venda','Reunião'];
-const RADAR_STATUS = ['📋 Pendente','⏳ Em andamento','✅ OK','⚠️ Atenção','🔴 Crítico'];
 const STATUS_CLS = {'✅ OK':'s-ok','⚠️ Atenção':'s-atencao','🔴 Crítico':'s-critico','⏳ Em andamento':'s-andamento','📋 Pendente':'s-pendente'};
 
 // ─────────────────────────────────────────────────
 //  STATE
 // ─────────────────────────────────────────────────
-let S = {view:'home',brand:null,tasks:[],evento:{},radar:[],isAdmin:false,adminCb:null};
+let S = {view:'home',brand:null,evento:{},isAdmin:false,adminCb:null};
 
 // ─────────────────────────────────────────────────
 //  API
@@ -269,7 +260,7 @@ async function api(params, body=null) {
 }
 
 async function loadEvent(brandId) {
-  S.view='event'; S.brand=brandId; S.tasks=[]; S.evento={};
+  S.view='event'; S.brand=brandId;  S.evento={};
   renderShell();
   loading(`Carregando ${brandId} do Notion...`);
   try {
@@ -358,8 +349,6 @@ function renderHome(){
 // ─────────────────────────────────────────────────
 function renderEvent(){
   const c=bc(); const br=bn(); const ev=S.evento;
-  const radarOk=radar.filter(r=>r.status==='✅ OK').length;
-  const radarCrit=radar.filter(r=>r.status==='🔴 Crítico').length;
 
   document.getElementById('tb-title').textContent=br?.name||S.brand;
   document.getElementById('tb-bread').textContent='Eventos › '+S.brand;
@@ -387,39 +376,7 @@ function renderEvent(){
         <div style="margin-left:auto;">${S.isAdmin?`<button class="btn btn-sm" style="background:rgba(255,255,255,.18);color:#fff;border:1.5px solid rgba(255,255,255,.25);" onclick="opEvento()">✏️ Editar Evento</button>`:''}</div>
       </div>
     </div>
-
-    <!-- STATS -->
-    <div class="stats-strip">
-      <div class="stp"><div class="stp-icon" style="background:#1a1a2e12;">📝</div><div><div class="stp-v" style="color:var(--firma);">${tasks.length}</div><div class="stp-l">Tarefas</div></div></div>
-      <div class="stp"><div class="stp-icon" style="background:#10b98118;">✅</div><div><div class="stp-v" style="color:#10b981;">${done}</div><div class="stp-l">Concluídas</div></div></div>
-      <div class="stp"><div class="stp-icon" style="background:#f59e0b18;">⏳</div><div><div class="stp-v" style="color:#f59e0b;">${tasks.length-done}</div><div class="stp-l">Em Aberto</div></div></div>
-      <div class="stp"><div class="stp-icon" style="background:#ef444418;">🔴</div><div><div class="stp-v" style="color:#ef4444;">${overdue}</div><div class="stp-l">Atrasadas</div></div></div>
     </div>
-
-    <!-- RADAR OPERACIONAL (dados reais do Notion) -->
-    <div class="radar-wrap">
-      <h3>🎛️ Radar Operacional
-        <a href="${ev.url||'#'}" target="_blank" style="font-size:10px;color:var(--muted);font-weight:500;margin-left:auto;text-decoration:none;">🔗 Abrir no Notion para editar</a>
-      </h3>
-      <div class="radar-grid">
-        ${[
-          ['Fase Atual',          ev.fase,        '🏗️'],
-          ['Status do Evento',    ev.status,       '📊'],
-          ['Painel de Atuação',   ev.painel,       '🎯'],
-          ['ArtGuide',            ev.artguide,     '🎨'],
-          ['Lista da Equipe',     ev.listaEquipe,  '👥'],
-          ['Lista de Equipamentos',ev.listaEquip,  '🔧'],
-          ['Fechar Fornecedores', ev.fechaFornec,  '🤝'],
-          ['Detalhar Estruturas', ev.detEstruturas,'🏛️'],
-          ['Reunião de Execuções',ev.reuniaoExec,  '📋'],
-          ['Tempos e Movimentos', ev.temposMov,    '⏱️'],
-        ].filter(([,v])=>v).map(([label,val,icon])=>{
-          const statusCls = val?.includes('OK')||val?.includes('Conclu')?'s-ok':val?.includes('Aten')||val?.includes('Prospec')?'s-atencao':val?.includes('Crit')||val?.includes('Perdid')?'s-critico':val?.includes('andamento')||val?.includes('Projeto')||val?.includes('Backlog')?'s-andamento':'s-pendente';
-          return `<div class="radar-item"><div class="radar-area">${icon} ${label}</div><div class="radar-status ${statusCls}">${val}</div></div>`;
-        }).join('')||'<div style="color:var(--muted);font-size:13px;">Clique em "Atualizar" para carregar dados do Notion.</div>'}
-      </div>
-    </div>
-
     <!-- FICHA DO EVENTO -->
     <div class="fc" style="--bc:${c};">
       <h3>📋 Informações do Evento
@@ -434,216 +391,11 @@ function renderEvent(){
     <div class="kw">
       <div class="kh">
         <h2>📌 Tarefas</h2>
-        <span style="font-size:11px;color:var(--muted);">${tasks.length} tarefa(s)</span>
         ${S.isAdmin?`<button class="btn btn-red btn-sm" style="margin-left:auto;" onclick="opTask()">+ Nova Tarefa</button>`:''}
       </div>
       <div class="kb" id="kb"></div>
     </div>`;
 
-  renderKanban();
-}
-
-// ─────────────────────────────────────────────────
-//  RADAR
-// ─────────────────────────────────────────────────
-function renderRadar(){
-  const grid=document.getElementById('radar-grid');if(!grid)return;grid.innerHTML='';
-  if(!S.radar.length){grid.innerHTML='<div style="color:var(--muted);font-size:13px;padding:10px 0;">Sem dados de radar.</div>';return;}
-  S.radar.forEach(item=>{
-    const cls=STATUS_CLS[item.status]||'s-pendente';
-    const el=document.createElement('div');el.className='radar-item';
-    el.innerHTML=`<div class="radar-area">${item.area}</div>
-      <div class="radar-status ${cls}">${item.status}</div>
-      ${item.responsavel?`<div class="radar-resp">👤 ${esc(item.responsavel)}</div>`:''}
-      ${item.observacao?`<div class="radar-obs">💬 ${esc(item.observacao)}</div>`:''}`;
-    if(S.isAdmin) el.onclick=()=>opRadar(item);
-    grid.appendChild(el);
-  });
-}
-
-function opRadar(item){
-  showModal(`Atualizar: ${item.area}`,`
-    <div class="fg"><label>Status</label>
-      <select id="r-st">${RADAR_STATUS.map(s=>`<option value="${s}" ${item.status===s?'selected':''}>${s}</option>`).join('')}</select>
-    </div>
-    <div class="fg"><label>Responsável</label><input type="text" id="r-resp" value="${esc(item.responsavel)}" placeholder="Nome do responsável"></div>
-    <div class="fg"><label>Observação</label><textarea id="r-obs" rows="3" placeholder="Detalhes, pendências...">${esc(item.observacao)}</textarea></div>`,
-  [{label:'Cancelar',cls:'btn-gh',act:'clModal()'},
-   {label:'Salvar no Notion',cls:'btn-red',act:`sbRadar('${item.id}')`}]);
-}
-async function sbRadar(id){
-  const data={id,status:document.getElementById('r-st').value,responsavel:document.getElementById('r-resp').value.trim(),observacao:document.getElementById('r-obs').value.trim()};
-  clModal();toast('Salvando...','info');
-  try{
-    await api({action:'update-radar'},data);
-    S.radar=S.radar.map(r=>r.id===id?{...r,...data}:r);
-    renderRadar();
-    renderEvent(); // refresh stats
-    toast('Radar atualizado!','ok');
-  }catch(e){toast('Erro: '+e.message,'err');}
-}
-
-// ─────────────────────────────────────────────────
-//  KANBAN
-// ─────────────────────────────────────────────────
-function renderKanban(){
-  const c=bc();const kb=document.getElementById('kb');if(!kb)return;kb.innerHTML='';
-  STAGES.forEach(stage=>{
-    const st=S.tasks.filter(t=>t.stage===stage);const sc=SC[stage];
-    const col=document.createElement('div');col.className='kc';col.dataset.stage=stage;
-    col.innerHTML=`<div class="kch" style="background:${sc};">${stage}<span class="kcc">${st.length}</span></div>
-      <div class="kcb" id="kcb-${stage.replace(/ /g,'_')}"
-        ondragover="event.preventDefault();this.classList.add('drag-over')"
-        ondragleave="this.classList.remove('drag-over')"
-        ondrop="dropTask(event,'${stage}')"></div>
-      ${S.isAdmin?`<div class="kadd" onclick="opTask('${stage}')">＋ Adicionar</div>`:''}`;
-    kb.appendChild(col);
-    const body=document.getElementById(`kcb-${stage.replace(/ /g,'_')}`);
-    st.forEach(t=>body.appendChild(buildCard(t,c)));
-  });
-}
-
-function buildCard(t,c){
-  const card=document.createElement('div');card.className='kcard';card.dataset.tid=t.id;
-  card.draggable=true;card.style.borderLeftColor=c;
-  const pc={'Alta':'ph','Média':'pm','Baixa':'pl'}[t.priority]||'pl';
-  const pl={'Alta':'Alta','Média':'Média','Baixa':'Baixa'}[t.priority]||'Baixa';
-  const today=new Date();today.setHours(0,0,0,0);
-  let dh='';
-  if(t.dueDate){const d=new Date(t.dueDate);d.setHours(0,0,0,0);const df=Math.ceil((d-today)/86400000);const dc=df<0?'#ef4444':df<=2?'#f59e0b':'#6b7280';dh=`<span style="color:${dc};font-size:10.5px;">${df<0?'⚠️':'📅'} ${t.dueDate}</span>`;}
-  card.innerHTML=`<div class="kct">${esc(t.title)}</div>
-    <div class="kcm"><span class="pri ${pc}">${pl}</span>${dh}</div>
-    ${t.areas?.length?`<div style="font-size:10px;color:var(--muted);margin-top:3px;">🏢 ${t.areas.slice(0,2).join(', ')}${t.areas.length>2?' +'+( t.areas.length-2):''}</div>`:''}
-    ${t.description?`<div style="font-size:11px;color:var(--muted);margin-top:4px;line-height:1.4;">${esc(t.description.substring(0,65))}${t.description.length>65?'…':''}</div>`:''}`;
-  card.ondragstart=e=>{card.classList.add('dragging');e.dataTransfer.setData('tid',t.id);};
-  card.ondragend=()=>card.classList.remove('dragging');
-  card.onclick=()=>opDetail(t);
-  return card;
-}
-
-async function dropTask(e,newStage){
-  e.preventDefault();e.currentTarget.classList.remove('drag-over');
-  const tid=e.dataTransfer.getData('tid');
-  const task=S.tasks.find(t=>t.id===tid);
-  if(!task||task.stage===newStage)return;
-  if(!S.isAdmin){toast('Ative o admin para mover tarefas.','err');return;}
-  S.tasks=S.tasks.map(t=>t.id===tid?{...t,stage:newStage}:t);renderKanban();
-  try{await api({action:'update-stage'},{id:tid,stage:newStage});toast(`Movido: "${newStage}"!`,'ok');}
-  catch(e){toast('Erro: '+e.message,'err');}
-}
-
-// ─────────────────────────────────────────────────
-//  TASK DETAIL
-// ─────────────────────────────────────────────────
-function opDetail(t){
-  const sc=SC[t.stage]||'#64748b';
-  const pc={'Alta':'ph','Média':'pm','Baixa':'pl'}[t.priority]||'pl';
-  showModal(t.title,`
-    <div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:12px;">
-      <span style="background:${sc}22;color:${sc};border-radius:20px;padding:3px 9px;font-size:11px;font-weight:600;">${t.stage||'—'}</span>
-      <span class="pri ${pc}">${t.priority||'—'}</span>
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
-      ${t.responsible?`<div><div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;">Responsável</div><div style="font-size:13.5px;font-weight:600;">${esc(t.responsible)}</div></div>`:''}
-      ${t.area?`<div><div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;">Área</div><div style="font-size:13.5px;font-weight:600;">${esc(t.area)}</div></div>`:''}
-      ${t.dueDate?`<div><div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;">Prazo</div><div style="font-size:13.5px;font-weight:600;">📅 ${t.dueDate}</div></div>`:''}
-      ${t.startDate?`<div><div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;">Início</div><div style="font-size:13.5px;font-weight:600;">🗓 ${t.startDate}</div></div>`:''}
-    </div>
-    ${t.description?`<p style="font-size:13px;line-height:1.65;background:#f8f9fb;border-radius:8px;padding:11px;margin-bottom:10px;">${esc(t.description)}</p>`:''}
-    <a href="https://www.notion.so/${t.id.replace(/-/g,'')}" target="_blank" class="btn btn-gh btn-sm">🔗 Ver no Notion</a>`,
-  S.isAdmin?[{label:'✏️ Editar',cls:'btn-dk',act:`clModal();opEdit(${JSON.stringify(JSON.stringify(t))})`},{label:'🗑️ Remover',cls:'btn-dn',act:`clModal();delTask('${t.id}')`}]:[]);
-}
-
-// ─────────────────────────────────────────────────
-//  CREATE / EDIT TASK
-// ─────────────────────────────────────────────────
-let _cl=[];
-function opTask(ds=null){if(!S.isAdmin){reqAdmin(()=>opTask(ds));return;}showModal('Nova Ação Operacional',taskForm(null,ds),[{label:'Cancelar',cls:'btn-gh',act:'clModal()'},{label:'Salvar no Notion',cls:'btn-red',act:'sbCreate()'}]);}
-function opEdit(tj){if(!S.isAdmin)return;const t=JSON.parse(tj);showModal('Editar Ação',taskForm(t,null),[{label:'Cancelar',cls:'btn-gh',act:'clModal()'},{label:'Salvar no Notion',cls:'btn-red',act:`sbEdit('${t.id}')`}]);}
-
-function taskForm(t,ds){
-  const g=k=>t?t[k]||'':'';
-  const ga=k=>t&&t[k]?t[k]:[];
-  return `
-  <div class="fg"><label>Ação Operacional *</label><input type="text" id="tt" value="${esc(g('title'))}" placeholder="Descreva a ação..."></div>
-  <div class="fr">
-    <div class="fg"><label>Funil Operacional</label><select id="te">${STAGES.map(s=>`<option value="${s}" ${(t?t.stage:ds)===s?'selected':''}>${s}</option>`).join('')}</select></div>
-    <div class="fg"><label>Prioridade</label><select id="tp">${PRIORIDADES.map(p=>`<option value="${p}" ${g('priority')===p?'selected':''}>${p}</option>`).join('')}</select></div>
-  </div>
-  <div class="fr">
-    <div class="fg"><label>Prazo de Conclusão</label><input type="date" id="td" value="${g('dueDate')}"></div>
-    <div class="fg"><label>Tags</label><select id="ttag" multiple style="height:80px;">${TAGS_OPT.map(tg=>`<option value="${tg}" ${ga('tags').includes(tg)?'selected':''}>${tg}</option>`).join('')}</select></div>
-  </div>
-  <div class="fg"><label>Área Responsável</label><select id="ta" multiple style="height:100px;">${AREAS.map(a=>`<option value="${a}" ${ga('areas').includes(a)?'selected':''}>${a}</option>`).join('')}</select><div style="font-size:10.5px;color:var(--muted);margin-top:3px;">Segure Ctrl/Cmd para selecionar múltiplas</div></div>
-  <div class="fg"><label>Detalhamento da Ação</label><textarea id="tde" rows="3" placeholder="Detalhes, contexto, instruções...">${esc(g('description'))}</textarea></div>`;
-}
-function swTab(){}
-function adCl(){}
-function rnCl(){}
-function gForm(){
-  const sel=id=>{const el=document.getElementById(id);if(!el)return[];return Array.from(el.selectedOptions).map(o=>o.value);};
-  return{
-    title:       document.getElementById('tt')?.value.trim()||'',
-    stage:       document.getElementById('te')?.value||'Não iniciada',
-    priority:    document.getElementById('tp')?.value||'Média',
-    dueDate:     document.getElementById('td')?.value||'',
-    areas:       sel('ta'),
-    tags:        sel('ttag'),
-    description: document.getElementById('tde')?.value.trim()||'',
-  };
-}
-
-async function sbCreate(){
-  const d=gForm();if(!d.title){toast('Informe o título.','err');return;}
-  clModal();toast('Criando no Notion...','info');
-  try{await api({action:'create-task'},{...d,brand:S.brand});toast('Criado!','ok');await loadEvent(S.brand);}
-  catch(e){toast('Erro: '+e.message,'err');}
-}
-async function sbEdit(tid){
-  const d=gForm();if(!d.title){toast('Informe o título.','err');return;}
-  clModal();toast('Salvando...','info');
-  try{await api({action:'update-task'},{...d,id:tid});S.tasks=S.tasks.map(t=>t.id===tid?{...t,...d}:t);renderEvent();toast('Salvo!','ok');}
-  catch(e){toast('Erro: '+e.message,'err');}
-}
-async function delTask(tid){
-  if(!confirm('Remover do Notion?'))return;
-  try{await api({action:'delete-task'},{id:tid});S.tasks=S.tasks.filter(t=>t.id!==tid);renderEvent();toast('Removida!','ok');}
-  catch(e){toast('Erro: '+e.message,'err');}
-}
-
-// ─────────────────────────────────────────────────
-//  EDIT EVENTO
-// ─────────────────────────────────────────────────
-function opEvento(){
-  if(!S.isAdmin){reqAdmin(opEvento);return;}
-  const ev=S.evento||{};
-  showModal(`Editar Evento · ${S.brand}`,`
-    <div class="fg"><label>Tema do Evento</label><input type="text" id="ev-tema" value="${esc(ev.tema||'')}" placeholder="Ex: Inovação na Educação"></div>
-    <div class="fr">
-      <div class="fg"><label>Data do Evento</label><input type="text" id="ev-data" value="${esc(ev.data||'')}" placeholder="Ex: 15/08/2026"></div>
-      <div class="fg"><label>Local</label><input type="text" id="ev-local" value="${esc(ev.local||'')}" placeholder="Cidade, venue..."></div>
-    </div>
-    <div class="fr">
-      <div class="fg"><label>N° Esperado de Participantes</label><input type="text" id="ev-part" value="${esc(ev.participantes||'')}" placeholder="Ex: 300"></div>
-      <div class="fg"><label>Formato</label><select id="ev-fmt"><option value="">Selecione...</option><option value="Presencial" ${ev.formato==='Presencial'?'selected':''}>Presencial</option><option value="Híbrido" ${ev.formato==='Híbrido'?'selected':''}>Híbrido</option><option value="Online" ${ev.formato==='Online'?'selected':''}>Online</option></select></div>
-    </div>
-    <div class="fr">
-      <div class="fg"><label>Produtor Responsável</label><input type="text" id="ev-prod" value="${esc(ev.produtor||'')}"></div>
-      <div class="fg"><label>Atendimento</label><input type="text" id="ev-ate" value="${esc(ev.atendimento||'')}"></div>
-    </div>
-    <div class="fr">
-      <div class="fg"><label>Supervisor</label><input type="text" id="ev-sup" value="${esc(ev.supervisor||'')}"></div>
-      <div class="fg"><label>Projetista</label><input type="text" id="ev-pro" value="${esc(ev.projetista||'')}"></div>
-    </div>
-    <div class="fg"><label>Observações</label><textarea id="ev-obs" rows="3">${esc(ev.obs||'')}</textarea></div>`,
-  [{label:'Cancelar',cls:'btn-gh',act:'clModal()'},{label:'Salvar no Notion',cls:'btn-red',act:'sbEvento()'}]);
-}
-async function sbEvento(){
-  const eid=S.evento?.id;if(!eid){toast('ID do evento não encontrado.','err');return;}
-  clModal();toast('Salvando evento...','info');
-  const data={id:eid,tema:document.getElementById('ev-tema').value.trim(),data:document.getElementById('ev-data').value.trim(),local:document.getElementById('ev-local').value.trim(),participantes:document.getElementById('ev-part').value.trim(),formato:document.getElementById('ev-fmt').value,produtor:document.getElementById('ev-prod').value.trim(),atendimento:document.getElementById('ev-ate').value.trim(),supervisor:document.getElementById('ev-sup').value.trim(),projetista:document.getElementById('ev-pro').value.trim(),obs:document.getElementById('ev-obs').value.trim()};
-  try{await api({action:'update-evento'},data);S.evento={...S.evento,...data};renderEvent();toast('Evento salvo!','ok');}
-  catch(e){toast('Erro: '+e.message,'err');}
 }
 
 // ─────────────────────────────────────────────────
