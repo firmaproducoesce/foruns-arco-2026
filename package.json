@@ -1,0 +1,8 @@
+{
+  "name": "arco-forums",
+  "version": "1.0.0",
+  "description": "Arco Educação Fóruns — Firma Produções",
+  "dependencies": {
+    "@notionhq/client": "^2.2.15"
+  }
+}

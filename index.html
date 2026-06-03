@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fórum Mantenedores 2026 · Firma Produções</title>
+<style>
+:root{--red:#CC1230;--firma:#0f0f0f;--bg:#f2f3f5;--white:#fff;--border:#e5e7eb;--muted:#6b7280;--text:#111;
+  --s:0 1px 3px rgba(0,0,0,.06),0 4px 12px rgba(0,0,0,.06);--sl:0 4px 8px rgba(0,0,0,.08),0 16px 40px rgba(0,0,0,.12);}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;-webkit-font-smoothing:antialiased}
+::-webkit-scrollbar{width:5px;height:5px}::-webkit-scrollbar-thumb{background:#d1d5db;border-radius:3px}
+#app{display:flex;min-height:100vh}
+#sb{width:230px;background:var(--firma);flex-shrink:0;display:flex;flex-direction:column;min-height:100vh;position:sticky;top:0;height:100vh;overflow-y:auto}
+#mn{flex:1;min-width:0;display:flex;flex-direction:column}
+#tb{background:#fff;border-bottom:1px solid var(--border);padding:0 22px;height:54px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:40}
+#tb::before{content:'';width:3px;height:20px;background:var(--red);border-radius:2px;flex-shrink:0}
+#tb-title{font-size:15px;font-weight:800;line-height:1.2}
+#tb-bread{font-size:11px;color:var(--muted);margin-top:1px}
+#tb-act{margin-left:auto;display:flex;gap:8px;align-items:center}
+#pg{padding:22px;flex:1}
+
+/* SIDEBAR */
+.sl{padding:14px 14px 10px;border-bottom:1px solid rgba(255,255,255,.06)}
+.sl-fw{font-size:11px;font-weight:800;color:#fff}
+.sl-sub{font-size:9px;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:1px;margin-top:1px}
+.sl-arco{display:flex;align-items:center;gap:5px;margin-top:7px}
+.sl-arco-dot{width:5px;height:5px;border-radius:50%;background:var(--red)}
+.sl-arco span{font-size:9px;font-weight:600;color:rgba(255,255,255,.3);letter-spacing:1px;text-transform:uppercase}
+.ss{padding:10px 8px 4px}
+.sl-lbl{font-size:9px;font-weight:700;color:rgba(255,255,255,.22);text-transform:uppercase;letter-spacing:1.5px;padding:0 8px;margin-bottom:4px}
+.si{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:8px;cursor:pointer;font-size:11.5px;font-weight:500;color:rgba(255,255,255,.5);transition:all .13s;margin-bottom:1px}
+.si:hover{background:rgba(255,255,255,.06);color:rgba(255,255,255,.9)}
+.si.active{background:rgba(204,18,48,.18);color:#fff}
+.si .sd{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.sf{margin-top:auto;padding:10px 8px;border-top:1px solid rgba(255,255,255,.06)}
+.sad{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:8px;cursor:pointer;font-size:12px;color:rgba(255,255,255,.38);font-weight:500;transition:all .13s}
+.sad:hover{background:rgba(204,18,48,.15);color:#fff}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:5px;padding:7px 16px;border-radius:7px;font-size:13px;font-weight:600;border:none;cursor:pointer;transition:all .15s;white-space:nowrap;text-decoration:none}
+.btn-red{background:var(--red);color:#fff}.btn-red:hover{filter:brightness(.9);transform:translateY(-1px)}
+.btn-dk{background:var(--firma);color:#fff}.btn-dk:hover{background:#2a2a2a}
+.btn-gh{background:transparent;color:var(--muted);border:1.5px solid var(--border)}.btn-gh:hover{background:#fff;color:var(--text)}
+.btn-dn{background:#dc2626;color:#fff}
+.btn-sm{padding:5px 11px;font-size:11.5px;border-radius:6px}
+.btn-up{background:var(--firma);color:#fff;font-weight:700;font-size:12px;padding:6px 13px;border-radius:7px;border:none;cursor:pointer;display:inline-flex;align-items:center;gap:5px}
+.btn-up:hover{background:#2a2a2a}
+
+/* INPUTS */
+input,textarea,select{width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:7px;font-size:13px;outline:none;background:#fff;color:var(--text);font-family:inherit;transition:border .13s}
+input:focus,textarea:focus,select:focus{border-color:var(--red);box-shadow:0 0 0 3px rgba(204,18,48,.07)}
+label{font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:4px}
+.fg{margin-bottom:12px}.fr{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.f3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+
+/* MODAL */
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;z-index:1000;padding:16px;backdrop-filter:blur(4px)}
+.md{background:#fff;border-radius:16px;width:100%;max-width:580px;max-height:92vh;overflow-y:auto;box-shadow:var(--sl)}
+.mh{padding:17px 22px 12px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:#fff;z-index:1;border-radius:16px 16px 0 0}
+.mh h3{font-size:15px;font-weight:800;display:flex;align-items:center;gap:8px}
+.mh h3::before{content:'';width:3px;height:15px;background:var(--red);border-radius:2px}
+.mb{padding:16px 22px}
+.mf{padding:12px 22px 16px;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end;background:#fafafa;border-radius:0 0 16px 16px}
+.xb{background:none;border:none;font-size:19px;cursor:pointer;color:var(--muted)}
+.hidden{display:none!important}
+
+/* TOAST */
+#toasts{position:fixed;bottom:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:7px}
+.toast{padding:10px 16px;border-radius:10px;font-size:13px;font-weight:600;color:#fff;box-shadow:var(--sl);display:flex;align-items:center;gap:7px;animation:tin .2s ease}
+.tok{background:#059669}.terr{background:var(--red)}.tinfo{background:var(--firma)}
+@keyframes tin{from{transform:translateX(110%) scale(.95);opacity:0}to{transform:none;opacity:1}}
+
+/* HOME — EVENT CARDS */
+.ev-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px}
+.ev-card{background:#fff;border-radius:14px;padding:20px 18px 16px;cursor:pointer;transition:all .2s;box-shadow:var(--s);position:relative;overflow:hidden}
+.ev-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:14px 14px 0 0}
+.ev-card:hover{transform:translateY(-4px);box-shadow:var(--sl)}
+.ev-logo{width:52px;height:52px;border-radius:13px;margin-bottom:12px;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:900;color:#fff}
+.ev-brand{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}
+.ev-name{font-size:13px;font-weight:800;line-height:1.35;color:var(--firma);margin-bottom:6px}
+.ev-sub{font-size:11px;color:var(--muted)}
+.progress-bar{height:3px;background:#e8eaed;border-radius:2px;margin-top:8px;overflow:hidden}
+.progress-fill{height:100%;border-radius:2px;transition:width .5s}
+
+/* EVENT DASHBOARD */
+.ev-hero{border-radius:14px;padding:20px 24px;margin-bottom:14px;color:#fff;position:relative;overflow:hidden}
+.ev-hero::before{content:'';position:absolute;right:-40px;top:-40px;width:200px;height:200px;border-radius:50%;background:rgba(255,255,255,.06)}
+.ev-hero-inner{display:flex;align-items:center;gap:14px;position:relative;z-index:1}
+.ev-hero-logo{width:54px;height:54px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:900;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.25);flex-shrink:0}
+.ev-hero-title{font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;opacity:.65;margin-bottom:3px}
+.ev-hero-name{font-size:18px;font-weight:800;line-height:1.25}
+.ev-hero-meta{font-size:12px;opacity:.72;margin-top:3px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+
+/* STATS */
+.stats-strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:10px;margin-bottom:14px}
+.stp{background:#fff;border-radius:10px;padding:12px 14px;box-shadow:var(--s);display:flex;align-items:center;gap:8px}
+.stp-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+.stp-v{font-size:20px;font-weight:800;line-height:1}
+.stp-l{font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-top:2px}
+
+/* FICHA DO EVENTO */
+.fc{background:#fff;border-radius:13px;padding:16px 18px;box-shadow:var(--s);margin-bottom:14px;border-left:4px solid var(--bc,var(--red))}
+.fc h3{font-size:11.5px;font-weight:800;margin-bottom:14px;text-transform:uppercase;letter-spacing:.5px;display:flex;align-items:center;gap:8px;color:var(--firma)}
+.fc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(165px,1fr));gap:10px 16px}
+.ff label{font-size:9.5px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.8px}
+.ff .fv{font-size:13.5px;font-weight:600;color:var(--firma);border-bottom:1px solid var(--border);padding-bottom:4px;margin-top:2px}
+.fv.empty{color:#c4c9d1;font-style:italic;font-weight:400}
+
+/* RADAR OPERACIONAL */
+.radar-wrap{background:#fff;border-radius:13px;padding:16px 18px;box-shadow:var(--s);margin-bottom:14px}
+.radar-wrap h3{font-size:11.5px;font-weight:800;margin-bottom:14px;text-transform:uppercase;letter-spacing:.5px;display:flex;align-items:center;gap:8px;color:var(--firma)}
+.radar-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}
+.radar-item{border-radius:10px;padding:12px 14px;cursor:pointer;transition:all .14s;border:1.5px solid var(--border);background:#fafafa;position:relative}
+.radar-item:hover{border-color:var(--item-color);box-shadow:0 2px 10px rgba(0,0,0,.08);transform:translateY(-1px)}
+.radar-area{font-size:12.5px;font-weight:700;color:var(--firma);margin-bottom:5px}
+.radar-status{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700}
+.radar-resp{font-size:10.5px;color:var(--muted);margin-top:5px}
+.radar-obs{font-size:10.5px;color:var(--muted);margin-top:2px;font-style:italic;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* STATUS COLORS */
+.s-ok{background:#dcfce7;color:#15803d}
+.s-atencao{background:#fffbeb;color:#b45309}
+.s-critico{background:#fff0f2;color:#cc1230}
+.s-andamento{background:#dbeafe;color:#1d4ed8}
+.s-pendente{background:#f3f4f6;color:#6b7280}
+
+/* KANBAN */
+.kw{background:#fff;border-radius:14px;padding:18px;box-shadow:var(--s)}
+.kh{display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+.kh h2{font-size:15px;font-weight:800}
+.kb{display:flex;gap:12px;overflow-x:auto;padding-bottom:10px}
+.kc{background:#edf0f4;border-radius:11px;width:255px;flex-shrink:0;display:flex;flex-direction:column}
+.kch{padding:10px 12px;border-radius:11px 11px 0 0;font-size:12px;font-weight:700;color:#fff;display:flex;align-items:center;gap:6px}
+.kcc{background:rgba(0,0,0,.2);color:#fff;font-size:10px;padding:1px 7px;border-radius:20px;margin-left:auto;font-weight:800}
+.kcb{padding:8px;flex:1;min-height:60px;transition:background .15s}
+.kcb.drag-over{background:rgba(204,18,48,.06);border-radius:0 0 8px 8px}
+.kcard{background:#fff;border-radius:9px;padding:11px 12px;margin-bottom:6px;box-shadow:0 1px 3px rgba(0,0,0,.06);cursor:grab;border-left:3px solid transparent;transition:all .13s}
+.kcard:hover{box-shadow:0 4px 12px rgba(0,0,0,.1);transform:translateY(-1px)}
+.kcard.dragging{opacity:.4;cursor:grabbing}
+.kct{font-size:12.5px;font-weight:700;margin-bottom:5px;line-height:1.4;color:var(--firma)}
+.kcm{font-size:11px;color:var(--muted);display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+.pri{display:inline-block;padding:2px 7px;border-radius:20px;font-size:10px;font-weight:700;text-transform:uppercase}
+.ph{background:#fff0f2;color:#cc1230}.pm{background:#fffbeb;color:#b45309}.pl{background:#f0fdf4;color:#15803d}
+.kadd{margin:0 8px 8px;padding:7px;border:1.5px dashed #d1d5db;border-radius:8px;font-size:11.5px;font-weight:600;color:#9ca3af;cursor:pointer;text-align:center;transition:all .13s}
+.kadd:hover{border-color:var(--red);color:var(--red)}
+
+/* ADMIN */
+.aov{position:fixed;inset:0;background:rgba(0,0,0,.75);display:flex;align-items:center;justify-content:center;z-index:2000;backdrop-filter:blur(6px)}
+.abox{background:#0f0f0f;border-radius:18px;padding:36px 30px;width:100%;max-width:340px;text-align:center;box-shadow:var(--sl)}
+.abox h2{font-size:17px;font-weight:800;color:#fff;margin-bottom:4px}
+.abox p{font-size:12px;color:rgba(255,255,255,.35);margin-bottom:18px}
+.abox input{background:#1a1a1a;border-color:rgba(255,255,255,.12);color:#fff}
+.abox input:focus{border-color:var(--red)}
+.abox input::placeholder{color:rgba(255,255,255,.25)}
+.aerr{background:rgba(204,18,48,.15);border:1.5px solid rgba(204,18,48,.35);color:#ff7a8a;padding:8px 12px;border-radius:7px;font-size:11.5px;margin-bottom:11px;font-weight:600}
+
+/* SPINNER */
+.spin{width:32px;height:32px;border:3px solid #e5e7eb;border-top-color:var(--red);border-radius:50%;animation:sp .7s linear infinite;margin:0 auto}
+@keyframes sp{to{transform:rotate(360deg)}}
+.lw{display:flex;flex-direction:column;align-items:center;gap:14px;padding:60px 20px}
+.lw p{font-size:13px;color:var(--muted);font-weight:500}
+.empty{text-align:center;padding:40px 16px;color:var(--muted)}
+.empty-icon{font-size:40px;margin-bottom:10px}
+.empty h3{font-size:14px;font-weight:700;color:var(--text);margin-bottom:5px}
+.cl-item{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border)}
+.cl-item:last-child{border-bottom:none}
+.cl-item input[type=checkbox]{width:15px;height:15px;accent-color:var(--red);flex-shrink:0}
+.cl-lbl{font-size:12.5px;flex:1}.cl-lbl.done{text-decoration:line-through;color:var(--muted)}
+.cl-add{display:flex;gap:6px;margin-top:7px}.cl-add input{flex:1}
+</style>
+</head>
+<body>
+
+<!-- ADMIN OVERLAY -->
+<div id="aov" class="aov hidden">
+  <div class="abox">
+    <div style="font-size:30px;margin-bottom:12px;">🔐</div>
+    <h2>Acesso Administrativo</h2>
+    <p>Firma Produções · área restrita</p>
+    <div id="aerr" class="aerr hidden"></div>
+    <div class="fg" style="text-align:left;"><label style="color:rgba(255,255,255,.5);">Senha</label>
+      <input type="password" id="apass" placeholder="••••••••" onkeydown="if(event.key==='Enter')ckAdmin()">
+    </div>
+    <button class="btn btn-red" style="width:100%;padding:10px;margin-bottom:8px;" onclick="ckAdmin()">Entrar</button>
+    <button class="btn btn-gh" style="width:100%;" onclick="clAdmin()">Cancelar</button>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div id="modal" class="ov hidden">
+  <div class="md">
+    <div class="mh"><h3 id="mtitle"></h3><button class="xb" onclick="clModal()">✕</button></div>
+    <div class="mb" id="mbody"></div>
+    <div class="mf" id="mfoot"></div>
+  </div>
+</div>
+<div id="toasts"></div>
+
+<div id="app">
+  <nav id="sb">
+    <div class="sl">
+      <div class="sl-fw">Firma Produções</div>
+      <div class="sl-sub">Gestão de Fóruns</div>
+      <div class="sl-arco"><div class="sl-arco-dot"></div><span>Arco Educação</span></div>
+    </div>
+    <div class="ss"><div class="sl-lbl">Geral</div>
+      <div class="si active" id="nav-home" onclick="goHome()"><span>🏠</span><span>Home</span></div>
+    </div>
+    <div class="ss"><div class="sl-lbl">Eventos</div><div id="nav-events"></div></div>
+    <div class="sf">
+      <div class="sad" onclick="togAdmin()" id="abtn">⚙️&nbsp;<span id="albl">Área Admin</span></div>
+    </div>
+  </nav>
+  <div id="mn">
+    <div id="tb">
+      <div><div id="tb-title">Fórum Mantenedores 2026</div><div id="tb-bread"></div></div>
+      <div id="tb-act"></div>
+    </div>
+    <div id="pg"></div>
+  </div>
+</div>
+
+<script>
+// ─────────────────────────────────────────────────
+//  CONFIG
+// ─────────────────────────────────────────────────
+const ADMIN_PASS = 'firmaprod123';
+const API = '/api/notion';
+const NOTION_TASKS  = 'https://www.notion.so/40539b688ad54845b11da21e94f83abd';
+const NOTION_EVENTOS= 'https://www.notion.so/acfacdaf075046408cc74cc10d20167d';
+const NOTION_RADAR  = 'https://www.notion.so/9d154ba0873449cdb95638de8b21fab1';
+
+const BRANDS = [
+  { id:'COC',                  name:'COC - Fórum Mantenedores 2026',               color:'#46a054' },
+  { id:'SAS',                  name:'SAS - Fórum de Mantenedores 2026',             color:'#032066' },
+  { id:'CONQUISTA',            name:'Forum de Mantenedores Conquista',              color:'#e30356' },
+  { id:'INTERNATIONAL SCHOOL', name:'IS - Fórum de Mantenedores 2026',              color:'#df9926' },
+  { id:'SAE',                  name:'SAE - Fórum Mantenedores 2026',                color:'#6f2e8b' },
+  { id:'POSITIVO',             name:'SISTEMA POSITIVO - Fórum Mantenedores 2026',  color:'#bd583b' },
+];
+const STAGES = ['Backlog | Eventos','Não iniciada','Em andamento','Stand-by','Concluído','Cancelado'];
+const SC = {'Backlog | Eventos':'#94a3b8','Não iniciada':'#64748b','Em andamento':'#3b82f6','Stand-by':'#f59e0b','Concluído':'#10b981','Cancelado':'#ef4444'};
+const STAGES_DONE = ['Concluído','Cancelado'];
+const AREAS = ['Produção','Projetos','Atendimento Comercial','Supervisão','Compras','House','Estrutural','Cenografia','A/V e Tecnologia','Operacional','ADM','Orçamentista','Pós-Venda','Produtora','Agência','Processos','Heads','financeiro','Brand Experience'];
+const PRIORIDADES = ['Imediata','Alta','Média','Baixa'];
+const TAGS_OPT = ['Demanda de Evento/Projeto','Demanda Interna','Demanda de Venda','Reunião'];
+const RADAR_STATUS = ['📋 Pendente','⏳ Em andamento','✅ OK','⚠️ Atenção','🔴 Crítico'];
+const STATUS_CLS = {'✅ OK':'s-ok','⚠️ Atenção':'s-atencao','🔴 Crítico':'s-critico','⏳ Em andamento':'s-andamento','📋 Pendente':'s-pendente'};
+
+// ─────────────────────────────────────────────────
+//  STATE
+// ─────────────────────────────────────────────────
+let S = {view:'home',brand:null,tasks:[],evento:{},radar:[],isAdmin:false,adminCb:null};
+
+// ─────────────────────────────────────────────────
+//  API
+// ─────────────────────────────────────────────────
+async function api(params, body=null) {
+  const qs = new URLSearchParams(params).toString();
+  const url = `${API}?${qs}`;
+  const opts = body
+    ? {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({...params,...body})}
+    : {method:'GET'};
+  const r = await fetch(url, opts);
+  const d = await r.json();
+  if (!d.ok) throw new Error(d.error || 'Erro na API');
+  return d;
+}
+
+async function loadEvent(brandId) {
+  S.view='event'; S.brand=brandId; S.tasks=[]; S.evento={};
+  renderShell();
+  loading(`Carregando ${brandId} do Notion...`);
+  try {
+    const er = await api({action:'evento', brand:brandId});
+    S.evento = er.evento || {};
+    renderEvent();
+  } catch(e) { showErr(e.message); }
+}
+
+// ─────────────────────────────────────────────────
+//  ADMIN
+// ─────────────────────────────────────────────────
+function togAdmin(){
+  if(S.isAdmin){S.isAdmin=false;document.getElementById('albl').textContent='Área Admin';toast('Admin desativado.','info');render();}
+  else{document.getElementById('aov').classList.remove('hidden');setTimeout(()=>document.getElementById('apass').focus(),60);}
+}
+function reqAdmin(cb){if(S.isAdmin){cb();return;}S.adminCb=cb;document.getElementById('aov').classList.remove('hidden');setTimeout(()=>document.getElementById('apass').focus(),60);}
+function ckAdmin(){
+  if(document.getElementById('apass').value===ADMIN_PASS){
+    S.isAdmin=true;document.getElementById('albl').textContent='🔓 Admin';
+    document.getElementById('aov').classList.add('hidden');document.getElementById('apass').value='';
+    document.getElementById('aerr').classList.add('hidden');toast('Admin ativado!','info');
+    if(S.adminCb){S.adminCb();S.adminCb=null;}render();
+  }else{const e=document.getElementById('aerr');e.textContent='Senha incorreta.';e.classList.remove('hidden');}
+}
+function clAdmin(){document.getElementById('aov').classList.add('hidden');document.getElementById('apass').value='';document.getElementById('aerr').classList.add('hidden');S.adminCb=null;}
+
+// ─────────────────────────────────────────────────
+//  SHELL
+// ─────────────────────────────────────────────────
+function renderShell(){
+  document.querySelectorAll('.si').forEach(el=>el.classList.remove('active'));
+  if(S.view==='home')document.getElementById('nav-home')?.classList.add('active');
+  else document.getElementById(`ne-${S.brand}`)?.classList.add('active');
+}
+function renderNav(){
+  const c=document.getElementById('nav-events');c.innerHTML='';
+  BRANDS.forEach(b=>{
+    const el=document.createElement('div');el.className='si';el.id=`ne-${b.id}`;
+    el.innerHTML=`<span class="sd" style="background:${b.color}"></span><span style="font-size:11px;line-height:1.3;">${b.id}</span>`;
+    el.onclick=()=>loadEvent(b.id);c.appendChild(el);
+  });
+}
+function goHome(){S.view='home';S.brand=null;renderShell();renderHome();}
+function render(){if(S.view==='home')renderHome();else if(S.view==='event')renderEvent();}
+function bc(){return BRANDS.find(b=>b.id===S.brand)?.color||'#597ebe';}
+function dk(hex,p){let r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);return `#${Math.max(0,r-p).toString(16).padStart(2,'0')}${Math.max(0,g-p).toString(16).padStart(2,'0')}${Math.max(0,b-p).toString(16).padStart(2,'0')}`;}
+function bn(){return BRANDS.find(b=>b.id===S.brand);}
+
+// ─────────────────────────────────────────────────
+//  HOME
+// ─────────────────────────────────────────────────
+function renderHome(){
+  document.getElementById('tb-title').textContent='Fórum Mantenedores 2026';
+  document.getElementById('tb-bread').textContent='';
+  document.getElementById('tb-act').innerHTML=
+    (S.isAdmin?`<button class="btn btn-dk btn-sm" onclick="togAdmin()">🔓 Admin</button>`:`<button class="btn btn-gh btn-sm" onclick="togAdmin()">⚙️ Admin</button>`);
+  renderShell();
+  document.getElementById('pg').innerHTML=`
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:18px;flex-wrap:wrap;">
+      <div style="width:3px;height:28px;background:var(--red);border-radius:2px;flex-shrink:0;"></div>
+      <div style="flex:1">
+        <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;">Firma Produções · Arco Educação</div>
+        <div style="font-size:13px;color:var(--muted);margin-top:1px;">Selecione um evento para ver o painel completo.</div>
+      </div>
+      <div style="background:#fffbeb;border:1.5px solid #fde68a;border-radius:9px;padding:8px 13px;display:flex;align-items:center;gap:7px;flex-shrink:0;">
+        <span>💡</span><span style="font-size:12px;color:#92400e;font-weight:500;">Editou no Notion? Clique no evento para recarregar.</span>
+      </div>
+    </div>
+    <div class="ev-grid" id="ev-grid"></div>`;
+  BRANDS.forEach(b=>{
+    const el=document.createElement('div');el.className='ev-card';
+    el.style.setProperty('--bc',b.color);
+    el.innerHTML=`<div style="position:absolute;top:0;left:0;right:0;height:3px;background:${b.color};border-radius:14px 14px 0 0;"></div>
+      <div class="ev-logo" style="background:${b.color};">${b.id.substring(0,2)}</div>
+      <div class="ev-brand" style="color:${b.color};">${b.id}</div>
+      <div class="ev-name">${b.name}</div>
+      <div class="ev-sub" style="color:var(--red);font-weight:600;">↺ Carregar do Notion</div>`;
+    el.onclick=()=>loadEvent(b.id);
+    document.getElementById('ev-grid').appendChild(el);
+  });
+}
+
+// ─────────────────────────────────────────────────
+//  EVENT DASHBOARD
+// ─────────────────────────────────────────────────
+function renderEvent(){
+  const c=bc(); const br=bn(); const ev=S.evento;
+  const radarOk=radar.filter(r=>r.status==='✅ OK').length;
+  const radarCrit=radar.filter(r=>r.status==='🔴 Crítico').length;
+
+  document.getElementById('tb-title').textContent=br?.name||S.brand;
+  document.getElementById('tb-bread').textContent='Eventos › '+S.brand;
+  document.getElementById('tb-act').innerHTML=
+    '<button class="btn btn-gh btn-sm" onclick="goHome()">&#8592; Voltar</button>'+
+    '<button class="btn-up" onclick="loadEvent(\'' + S.brand + '\')">&#8635; Atualizar</button>'+
+    (ev.url?'<a href="'+ev.url+'" target="_blank" class="btn btn-red btn-sm">&#128279; Abrir no Notion</a>':'');
+  renderShell();
+
+  document.getElementById('pg').innerHTML=`
+    <!-- HERO -->
+    <div class="ev-hero" style="background:linear-gradient(130deg,${c} 0%,${dk(c,35)} 100%);margin-bottom:14px;">
+      <div class="ev-hero-inner">
+        <div class="ev-hero-logo">${S.brand.substring(0,2)}</div>
+        <div>
+          <div class="ev-hero-title">${S.brand}</div>
+          <div class="ev-hero-name">${ev.evento||br?.name||''}</div>
+          <div class="ev-hero-meta">
+            ${ev.data?`<span>📅 ${ev.data}</span>`:''}
+            ${ev.local?`<span>📍 ${ev.local}</span>`:''}
+            ${ev.formato?`<span>🎯 ${ev.formato}</span>`:''}
+            ${ev.participantes?`<span>👥 ${ev.participantes}</span>`:''}
+          </div>
+        </div>
+        <div style="margin-left:auto;">${S.isAdmin?`<button class="btn btn-sm" style="background:rgba(255,255,255,.18);color:#fff;border:1.5px solid rgba(255,255,255,.25);" onclick="opEvento()">✏️ Editar Evento</button>`:''}</div>
+      </div>
+    </div>
+
+    <!-- STATS -->
+    <div class="stats-strip">
+      <div class="stp"><div class="stp-icon" style="background:#1a1a2e12;">📝</div><div><div class="stp-v" style="color:var(--firma);">${tasks.length}</div><div class="stp-l">Tarefas</div></div></div>
+      <div class="stp"><div class="stp-icon" style="background:#10b98118;">✅</div><div><div class="stp-v" style="color:#10b981;">${done}</div><div class="stp-l">Concluídas</div></div></div>
+      <div class="stp"><div class="stp-icon" style="background:#f59e0b18;">⏳</div><div><div class="stp-v" style="color:#f59e0b;">${tasks.length-done}</div><div class="stp-l">Em Aberto</div></div></div>
+      <div class="stp"><div class="stp-icon" style="background:#ef444418;">🔴</div><div><div class="stp-v" style="color:#ef4444;">${overdue}</div><div class="stp-l">Atrasadas</div></div></div>
+    </div>
+
+    <!-- RADAR OPERACIONAL (dados reais do Notion) -->
+    <div class="radar-wrap">
+      <h3>🎛️ Radar Operacional
+        <a href="${ev.url||'#'}" target="_blank" style="font-size:10px;color:var(--muted);font-weight:500;margin-left:auto;text-decoration:none;">🔗 Abrir no Notion para editar</a>
+      </h3>
+      <div class="radar-grid">
+        ${[
+          ['Fase Atual',          ev.fase,        '🏗️'],
+          ['Status do Evento',    ev.status,       '📊'],
+          ['Painel de Atuação',   ev.painel,       '🎯'],
+          ['ArtGuide',            ev.artguide,     '🎨'],
+          ['Lista da Equipe',     ev.listaEquipe,  '👥'],
+          ['Lista de Equipamentos',ev.listaEquip,  '🔧'],
+          ['Fechar Fornecedores', ev.fechaFornec,  '🤝'],
+          ['Detalhar Estruturas', ev.detEstruturas,'🏛️'],
+          ['Reunião de Execuções',ev.reuniaoExec,  '📋'],
+          ['Tempos e Movimentos', ev.temposMov,    '⏱️'],
+        ].filter(([,v])=>v).map(([label,val,icon])=>{
+          const statusCls = val?.includes('OK')||val?.includes('Conclu')?'s-ok':val?.includes('Aten')||val?.includes('Prospec')?'s-atencao':val?.includes('Crit')||val?.includes('Perdid')?'s-critico':val?.includes('andamento')||val?.includes('Projeto')||val?.includes('Backlog')?'s-andamento':'s-pendente';
+          return `<div class="radar-item"><div class="radar-area">${icon} ${label}</div><div class="radar-status ${statusCls}">${val}</div></div>`;
+        }).join('')||'<div style="color:var(--muted);font-size:13px;">Clique em "Atualizar" para carregar dados do Notion.</div>'}
+      </div>
+    </div>
+
+    <!-- FICHA DO EVENTO -->
+    <div class="fc" style="--bc:${c};">
+      <h3>📋 Informações do Evento
+        <a href="${ev.url||'#'}" target="_blank" class="btn btn-gh btn-sm" style="margin-left:auto;">🔗 Editar no Notion</a>
+      </h3>
+      <div class="fc-grid">
+        ${[['Nome do Evento','titulo'],['Cidade','cidade'],['Estado','estado'],['Data Início','dataStart'],['Data Fim','dataEnd'],['Tipo','tipoEvento']].map(([l,k])=>`<div class="ff"><label>${l}</label><div class="fv ${ev[k]?'':'empty'}">${ev[k]||'—'}</div></div>`).join('')}
+      </div>
+    </div>
+
+    <!-- KANBAN -->
+    <div class="kw">
+      <div class="kh">
+        <h2>📌 Tarefas</h2>
+        <span style="font-size:11px;color:var(--muted);">${tasks.length} tarefa(s)</span>
+        ${S.isAdmin?`<button class="btn btn-red btn-sm" style="margin-left:auto;" onclick="opTask()">+ Nova Tarefa</button>`:''}
+      </div>
+      <div class="kb" id="kb"></div>
+    </div>`;
+
+  renderKanban();
+}
+
+// ─────────────────────────────────────────────────
+//  RADAR
+// ─────────────────────────────────────────────────
+function renderRadar(){
+  const grid=document.getElementById('radar-grid');if(!grid)return;grid.innerHTML='';
+  if(!S.radar.length){grid.innerHTML='<div style="color:var(--muted);font-size:13px;padding:10px 0;">Sem dados de radar.</div>';return;}
+  S.radar.forEach(item=>{
+    const cls=STATUS_CLS[item.status]||'s-pendente';
+    const el=document.createElement('div');el.className='radar-item';
+    el.innerHTML=`<div class="radar-area">${item.area}</div>
+      <div class="radar-status ${cls}">${item.status}</div>
+      ${item.responsavel?`<div class="radar-resp">👤 ${esc(item.responsavel)}</div>`:''}
+      ${item.observacao?`<div class="radar-obs">💬 ${esc(item.observacao)}</div>`:''}`;
+    if(S.isAdmin) el.onclick=()=>opRadar(item);
+    grid.appendChild(el);
+  });
+}
+
+function opRadar(item){
+  showModal(`Atualizar: ${item.area}`,`
+    <div class="fg"><label>Status</label>
+      <select id="r-st">${RADAR_STATUS.map(s=>`<option value="${s}" ${item.status===s?'selected':''}>${s}</option>`).join('')}</select>
+    </div>
+    <div class="fg"><label>Responsável</label><input type="text" id="r-resp" value="${esc(item.responsavel)}" placeholder="Nome do responsável"></div>
+    <div class="fg"><label>Observação</label><textarea id="r-obs" rows="3" placeholder="Detalhes, pendências...">${esc(item.observacao)}</textarea></div>`,
+  [{label:'Cancelar',cls:'btn-gh',act:'clModal()'},
+   {label:'Salvar no Notion',cls:'btn-red',act:`sbRadar('${item.id}')`}]);
+}
+async function sbRadar(id){
+  const data={id,status:document.getElementById('r-st').value,responsavel:document.getElementById('r-resp').value.trim(),observacao:document.getElementById('r-obs').value.trim()};
+  clModal();toast('Salvando...','info');
+  try{
+    await api({action:'update-radar'},data);
+    S.radar=S.radar.map(r=>r.id===id?{...r,...data}:r);
+    renderRadar();
+    renderEvent(); // refresh stats
+    toast('Radar atualizado!','ok');
+  }catch(e){toast('Erro: '+e.message,'err');}
+}
+
+// ─────────────────────────────────────────────────
+//  KANBAN
+// ─────────────────────────────────────────────────
+function renderKanban(){
+  const c=bc();const kb=document.getElementById('kb');if(!kb)return;kb.innerHTML='';
+  STAGES.forEach(stage=>{
+    const st=S.tasks.filter(t=>t.stage===stage);const sc=SC[stage];
+    const col=document.createElement('div');col.className='kc';col.dataset.stage=stage;
+    col.innerHTML=`<div class="kch" style="background:${sc};">${stage}<span class="kcc">${st.length}</span></div>
+      <div class="kcb" id="kcb-${stage.replace(/ /g,'_')}"
+        ondragover="event.preventDefault();this.classList.add('drag-over')"
+        ondragleave="this.classList.remove('drag-over')"
+        ondrop="dropTask(event,'${stage}')"></div>
+      ${S.isAdmin?`<div class="kadd" onclick="opTask('${stage}')">＋ Adicionar</div>`:''}`;
+    kb.appendChild(col);
+    const body=document.getElementById(`kcb-${stage.replace(/ /g,'_')}`);
+    st.forEach(t=>body.appendChild(buildCard(t,c)));
+  });
+}
+
+function buildCard(t,c){
+  const card=document.createElement('div');card.className='kcard';card.dataset.tid=t.id;
+  card.draggable=true;card.style.borderLeftColor=c;
+  const pc={'Alta':'ph','Média':'pm','Baixa':'pl'}[t.priority]||'pl';
+  const pl={'Alta':'Alta','Média':'Média','Baixa':'Baixa'}[t.priority]||'Baixa';
+  const today=new Date();today.setHours(0,0,0,0);
+  let dh='';
+  if(t.dueDate){const d=new Date(t.dueDate);d.setHours(0,0,0,0);const df=Math.ceil((d-today)/86400000);const dc=df<0?'#ef4444':df<=2?'#f59e0b':'#6b7280';dh=`<span style="color:${dc};font-size:10.5px;">${df<0?'⚠️':'📅'} ${t.dueDate}</span>`;}
+  card.innerHTML=`<div class="kct">${esc(t.title)}</div>
+    <div class="kcm"><span class="pri ${pc}">${pl}</span>${dh}</div>
+    ${t.areas?.length?`<div style="font-size:10px;color:var(--muted);margin-top:3px;">🏢 ${t.areas.slice(0,2).join(', ')}${t.areas.length>2?' +'+( t.areas.length-2):''}</div>`:''}
+    ${t.description?`<div style="font-size:11px;color:var(--muted);margin-top:4px;line-height:1.4;">${esc(t.description.substring(0,65))}${t.description.length>65?'…':''}</div>`:''}`;
+  card.ondragstart=e=>{card.classList.add('dragging');e.dataTransfer.setData('tid',t.id);};
+  card.ondragend=()=>card.classList.remove('dragging');
+  card.onclick=()=>opDetail(t);
+  return card;
+}
+
+async function dropTask(e,newStage){
+  e.preventDefault();e.currentTarget.classList.remove('drag-over');
+  const tid=e.dataTransfer.getData('tid');
+  const task=S.tasks.find(t=>t.id===tid);
+  if(!task||task.stage===newStage)return;
+  if(!S.isAdmin){toast('Ative o admin para mover tarefas.','err');return;}
+  S.tasks=S.tasks.map(t=>t.id===tid?{...t,stage:newStage}:t);renderKanban();
+  try{await api({action:'update-stage'},{id:tid,stage:newStage});toast(`Movido: "${newStage}"!`,'ok');}
+  catch(e){toast('Erro: '+e.message,'err');}
+}
+
+// ─────────────────────────────────────────────────
+//  TASK DETAIL
+// ─────────────────────────────────────────────────
+function opDetail(t){
+  const sc=SC[t.stage]||'#64748b';
+  const pc={'Alta':'ph','Média':'pm','Baixa':'pl'}[t.priority]||'pl';
+  showModal(t.title,`
+    <div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:12px;">
+      <span style="background:${sc}22;color:${sc};border-radius:20px;padding:3px 9px;font-size:11px;font-weight:600;">${t.stage||'—'}</span>
+      <span class="pri ${pc}">${t.priority||'—'}</span>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
+      ${t.responsible?`<div><div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;">Responsável</div><div style="font-size:13.5px;font-weight:600;">${esc(t.responsible)}</div></div>`:''}
+      ${t.area?`<div><div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;">Área</div><div style="font-size:13.5px;font-weight:600;">${esc(t.area)}</div></div>`:''}
+      ${t.dueDate?`<div><div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;">Prazo</div><div style="font-size:13.5px;font-weight:600;">📅 ${t.dueDate}</div></div>`:''}
+      ${t.startDate?`<div><div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;">Início</div><div style="font-size:13.5px;font-weight:600;">🗓 ${t.startDate}</div></div>`:''}
+    </div>
+    ${t.description?`<p style="font-size:13px;line-height:1.65;background:#f8f9fb;border-radius:8px;padding:11px;margin-bottom:10px;">${esc(t.description)}</p>`:''}
+    <a href="https://www.notion.so/${t.id.replace(/-/g,'')}" target="_blank" class="btn btn-gh btn-sm">🔗 Ver no Notion</a>`,
+  S.isAdmin?[{label:'✏️ Editar',cls:'btn-dk',act:`clModal();opEdit(${JSON.stringify(JSON.stringify(t))})`},{label:'🗑️ Remover',cls:'btn-dn',act:`clModal();delTask('${t.id}')`}]:[]);
+}
+
+// ─────────────────────────────────────────────────
+//  CREATE / EDIT TASK
+// ─────────────────────────────────────────────────
+let _cl=[];
+function opTask(ds=null){if(!S.isAdmin){reqAdmin(()=>opTask(ds));return;}showModal('Nova Ação Operacional',taskForm(null,ds),[{label:'Cancelar',cls:'btn-gh',act:'clModal()'},{label:'Salvar no Notion',cls:'btn-red',act:'sbCreate()'}]);}
+function opEdit(tj){if(!S.isAdmin)return;const t=JSON.parse(tj);showModal('Editar Ação',taskForm(t,null),[{label:'Cancelar',cls:'btn-gh',act:'clModal()'},{label:'Salvar no Notion',cls:'btn-red',act:`sbEdit('${t.id}')`}]);}
+
+function taskForm(t,ds){
+  const g=k=>t?t[k]||'':'';
+  const ga=k=>t&&t[k]?t[k]:[];
+  return `
+  <div class="fg"><label>Ação Operacional *</label><input type="text" id="tt" value="${esc(g('title'))}" placeholder="Descreva a ação..."></div>
+  <div class="fr">
+    <div class="fg"><label>Funil Operacional</label><select id="te">${STAGES.map(s=>`<option value="${s}" ${(t?t.stage:ds)===s?'selected':''}>${s}</option>`).join('')}</select></div>
+    <div class="fg"><label>Prioridade</label><select id="tp">${PRIORIDADES.map(p=>`<option value="${p}" ${g('priority')===p?'selected':''}>${p}</option>`).join('')}</select></div>
+  </div>
+  <div class="fr">
+    <div class="fg"><label>Prazo de Conclusão</label><input type="date" id="td" value="${g('dueDate')}"></div>
+    <div class="fg"><label>Tags</label><select id="ttag" multiple style="height:80px;">${TAGS_OPT.map(tg=>`<option value="${tg}" ${ga('tags').includes(tg)?'selected':''}>${tg}</option>`).join('')}</select></div>
+  </div>
+  <div class="fg"><label>Área Responsável</label><select id="ta" multiple style="height:100px;">${AREAS.map(a=>`<option value="${a}" ${ga('areas').includes(a)?'selected':''}>${a}</option>`).join('')}</select><div style="font-size:10.5px;color:var(--muted);margin-top:3px;">Segure Ctrl/Cmd para selecionar múltiplas</div></div>
+  <div class="fg"><label>Detalhamento da Ação</label><textarea id="tde" rows="3" placeholder="Detalhes, contexto, instruções...">${esc(g('description'))}</textarea></div>`;
+}
+function swTab(){}
+function adCl(){}
+function rnCl(){}
+function gForm(){
+  const sel=id=>{const el=document.getElementById(id);if(!el)return[];return Array.from(el.selectedOptions).map(o=>o.value);};
+  return{
+    title:       document.getElementById('tt')?.value.trim()||'',
+    stage:       document.getElementById('te')?.value||'Não iniciada',
+    priority:    document.getElementById('tp')?.value||'Média',
+    dueDate:     document.getElementById('td')?.value||'',
+    areas:       sel('ta'),
+    tags:        sel('ttag'),
+    description: document.getElementById('tde')?.value.trim()||'',
+  };
+}
+
+async function sbCreate(){
+  const d=gForm();if(!d.title){toast('Informe o título.','err');return;}
+  clModal();toast('Criando no Notion...','info');
+  try{await api({action:'create-task'},{...d,brand:S.brand});toast('Criado!','ok');await loadEvent(S.brand);}
+  catch(e){toast('Erro: '+e.message,'err');}
+}
+async function sbEdit(tid){
+  const d=gForm();if(!d.title){toast('Informe o título.','err');return;}
+  clModal();toast('Salvando...','info');
+  try{await api({action:'update-task'},{...d,id:tid});S.tasks=S.tasks.map(t=>t.id===tid?{...t,...d}:t);renderEvent();toast('Salvo!','ok');}
+  catch(e){toast('Erro: '+e.message,'err');}
+}
+async function delTask(tid){
+  if(!confirm('Remover do Notion?'))return;
+  try{await api({action:'delete-task'},{id:tid});S.tasks=S.tasks.filter(t=>t.id!==tid);renderEvent();toast('Removida!','ok');}
+  catch(e){toast('Erro: '+e.message,'err');}
+}
+
+// ─────────────────────────────────────────────────
+//  EDIT EVENTO
+// ─────────────────────────────────────────────────
+function opEvento(){
+  if(!S.isAdmin){reqAdmin(opEvento);return;}
+  const ev=S.evento||{};
+  showModal(`Editar Evento · ${S.brand}`,`
+    <div class="fg"><label>Tema do Evento</label><input type="text" id="ev-tema" value="${esc(ev.tema||'')}" placeholder="Ex: Inovação na Educação"></div>
+    <div class="fr">
+      <div class="fg"><label>Data do Evento</label><input type="text" id="ev-data" value="${esc(ev.data||'')}" placeholder="Ex: 15/08/2026"></div>
+      <div class="fg"><label>Local</label><input type="text" id="ev-local" value="${esc(ev.local||'')}" placeholder="Cidade, venue..."></div>
+    </div>
+    <div class="fr">
+      <div class="fg"><label>N° Esperado de Participantes</label><input type="text" id="ev-part" value="${esc(ev.participantes||'')}" placeholder="Ex: 300"></div>
+      <div class="fg"><label>Formato</label><select id="ev-fmt"><option value="">Selecione...</option><option value="Presencial" ${ev.formato==='Presencial'?'selected':''}>Presencial</option><option value="Híbrido" ${ev.formato==='Híbrido'?'selected':''}>Híbrido</option><option value="Online" ${ev.formato==='Online'?'selected':''}>Online</option></select></div>
+    </div>
+    <div class="fr">
+      <div class="fg"><label>Produtor Responsável</label><input type="text" id="ev-prod" value="${esc(ev.produtor||'')}"></div>
+      <div class="fg"><label>Atendimento</label><input type="text" id="ev-ate" value="${esc(ev.atendimento||'')}"></div>
+    </div>
+    <div class="fr">
+      <div class="fg"><label>Supervisor</label><input type="text" id="ev-sup" value="${esc(ev.supervisor||'')}"></div>
+      <div class="fg"><label>Projetista</label><input type="text" id="ev-pro" value="${esc(ev.projetista||'')}"></div>
+    </div>
+    <div class="fg"><label>Observações</label><textarea id="ev-obs" rows="3">${esc(ev.obs||'')}</textarea></div>`,
+  [{label:'Cancelar',cls:'btn-gh',act:'clModal()'},{label:'Salvar no Notion',cls:'btn-red',act:'sbEvento()'}]);
+}
+async function sbEvento(){
+  const eid=S.evento?.id;if(!eid){toast('ID do evento não encontrado.','err');return;}
+  clModal();toast('Salvando evento...','info');
+  const data={id:eid,tema:document.getElementById('ev-tema').value.trim(),data:document.getElementById('ev-data').value.trim(),local:document.getElementById('ev-local').value.trim(),participantes:document.getElementById('ev-part').value.trim(),formato:document.getElementById('ev-fmt').value,produtor:document.getElementById('ev-prod').value.trim(),atendimento:document.getElementById('ev-ate').value.trim(),supervisor:document.getElementById('ev-sup').value.trim(),projetista:document.getElementById('ev-pro').value.trim(),obs:document.getElementById('ev-obs').value.trim()};
+  try{await api({action:'update-evento'},data);S.evento={...S.evento,...data};renderEvent();toast('Evento salvo!','ok');}
+  catch(e){toast('Erro: '+e.message,'err');}
+}
+
+// ─────────────────────────────────────────────────
+//  HELPERS
+// ─────────────────────────────────────────────────
+function loading(msg){document.getElementById('pg').innerHTML=`<div class="lw"><div class="spin"></div><p>${msg}</p></div>`;}
+function showErr(msg){document.getElementById('pg').innerHTML=`<div class="empty"><div class="empty-icon">⚠️</div><h3>Erro</h3><p style="max-width:360px;margin:0 auto 14px;">${msg}</p><button class="btn btn-dk" onclick="loadEvent('${S.brand}')">↺ Tentar novamente</button></div>`;}
+function showModal(title,body,btns=[]){document.getElementById('mtitle').textContent=title;document.getElementById('mbody').innerHTML=body;document.getElementById('mfoot').innerHTML=btns.map(b=>`<button class="btn ${b.cls}" onclick="${b.act}">${b.label}</button>`).join('');document.getElementById('modal').classList.remove('hidden');}
+function clModal(){document.getElementById('modal').classList.add('hidden');}
+document.getElementById('modal').addEventListener('click',e=>{if(e.target===e.currentTarget)clModal();});
+function toast(msg,type='info'){const i={ok:'✅',err:'❌',info:'ℹ️'};const el=document.createElement('div');el.className=`toast ${type==='ok'?'tok':type==='err'?'terr':'tinfo'}`;el.innerHTML=`<span>${i[type]||'•'}</span>${msg}`;document.getElementById('toasts').appendChild(el);setTimeout(()=>el.remove(),3200);}
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+// ─────────────────────────────────────────────────
+//  BOOT
+// ─────────────────────────────────────────────────
+renderNav();
+renderHome();
+</script>
+</body>
+</html>
