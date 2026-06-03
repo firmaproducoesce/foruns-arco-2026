@@ -384,14 +384,29 @@ function renderEvent(){
     <!-- FICHA DO EVENTO -->
     <div class="fc" style="--bc:${c};">
       <h3>📋 Informações do Evento
-        <a href="${ev.url||'#'}" target="_blank" class="btn btn-gh btn-sm" style="margin-left:auto;">🔗 Editar no Notion</a>
+        <a href="${ev.url||'#'}" target="_blank" class="btn btn-gh btn-sm" style="margin-left:auto;">🔗 Abrir no Notion</a>
       </h3>
-      <div class="fc-grid">
-        ${[['Nome do Evento','titulo'],['Cidade','cidade'],['Estado','estado'],['Data Início','dataStart'],['Data Fim','dataEnd'],['Tipo','tipoEvento']].map(([l,k])=>`<div class="ff"><label>${l}</label><div class="fv ${ev[k]?'':'empty'}">${ev[k]||'—'}</div></div>`).join('')}
+      <div style="margin-bottom:14px;">
+        <div style="font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">📌 Identificação</div>
+        <div class="fc-grid">
+          ${[['Nome do Evento','titulo'],['Cidade','cidade'],['Estado','estado'],['Data Início','dataStart'],['Data Fim','dataEnd'],['Montagem','dataMontagem'],['Desmontagem','dataDesmontagem'],['Tipo de Evento','tipos'],['Categorização','categorias']].map(([l,k])=>ev[k]?`<div class="ff"><label>${l}</label><div class="fval">${ev[k]}</div></div>`:'').join('')}
+        </div>
+      </div>
+      <div style="margin-bottom:14px;padding-top:12px;border-top:1px solid var(--border);">
+        <div style="font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">📊 Status</div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;">
+          ${[['Status do Evento','status'],['Fase Atual','fase'],['Painel de Atuação','painel'],['Lead/Cliente','statusLead']].map(([l,k])=>ev[k]?`<div style="background:#f8f9fb;border-radius:8px;padding:8px 12px;"><div style="font-size:9.5px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;">${l}</div><div style="font-size:13px;font-weight:700;margin-top:3px;">${ev[k]}</div></div>`:'').join('')}
+        </div>
+      </div>
+      <div style="padding-top:12px;border-top:1px solid var(--border);">
+        <div style="font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">🎛️ Checklist Operacional</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px;">
+          ${[['ArtGuide','artguide'],['Lista da Equipe','listaEquipe'],['Lista de Equipamentos','listaEquip'],['Fechar Fornecedores','fechaFornec'],['Detalhar Estruturas','detEstr'],['Reunião de Execuções','reuniaoExec'],['Tempos e Movimentos','temposMov']].map(([l,k])=>{const v=ev[k]||'—';const cor=v.includes('Conclu')||v.includes('OK')?'#10b981':v.includes('Aten')?'#f59e0b':v.includes('Crit')?'#ef4444':v.includes('andamento')||v.includes('Projeto')?'#3b82f6':'#94a3b8';return `<div style="display:flex;align-items:center;justify-content:space-between;background:#f8f9fb;border-radius:8px;padding:8px 12px;"><span style="font-size:12px;font-weight:600;">${l}</span><span style="font-size:11px;font-weight:700;color:${cor};background:${cor}18;padding:2px 8px;border-radius:20px;">${v}</span></div>`;}).join('')}
+        </div>
       </div>
     </div>
 
-    <!-- KANBAN -->
+    <!-- KANBAN<!-- KANBAN -->
     <div class="kw">
       <div class="kh">
         <h2>📌 Ações Operacionais</h2>

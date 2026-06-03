@@ -18,28 +18,43 @@ function rt(t) { return t ? [{ text: { content: String(t) } }] : []; }
 
 function mapEvento(page) {
   const p = page.properties;
-  const txt = k => p[k]?.rich_text?.[0]?.plain_text || p[k]?.title?.[0]?.plain_text || '';
+  const txt = k => p[k]?.rich_text?.[0]?.plain_text || p[k]?.title?.[0]?.plain_text || p[k]?.formula?.string || '';
   const sel = k => p[k]?.select?.name || '';
   const ms  = k => (p[k]?.multi_select || []).map(s => s.name).join(', ');
+  const dt  = k => p[k]?.date?.start || '';
+  const dtE = k => p[k]?.date?.end   || '';
   return {
-    id:          page.id,
-    url:         page.url,
-    titulo:      p.Evento?.title?.[0]?.plain_text || '',
-    status:      sel('Status do Evento'),
-    fase:        sel('Fase Atual') || txt('Fase Atual'),
-    painel:      sel('Painel Geral de Atuação'),
-    cidade:      txt('Cidade'),
-    estado:      txt('Estado'),
-    dataStart:   p['Data do Evento']?.date?.start || '',
-    dataEnd:     p['Data do Evento']?.date?.end   || '',
-    tipos:       ms('Tipo de Evento'),
-    artguide:    sel('ArtGuide Status'),
-    listaEquipe: sel('Lista Equipe Status'),
-    listaEquip:  sel('Lista Equipamentos Status'),
-    fechaFornec: sel('Fechar com Fornecedor Status'),
-    detEstr:     sel('Detalhar Estrutura Status'),
-    reuniaoExec: sel('Reunião de Execuções Status'),
-    temposMov:   sel('Tempos Movimentos Status'),
+    id:           page.id,
+    url:          page.url,
+    titulo:       p.Evento?.title?.[0]?.plain_text || '',
+    // Status & fase
+    status:       sel('Status do Evento'),
+    fase:         sel('Fase Atual') || txt('Fase Atual'),
+    painel:       sel('Painel Geral de Atuação'),
+    statusLead:   sel('Status do Lead/Cliente'),
+    // Localização e data
+    cidade:       txt('Cidade'),
+    estado:       txt('Estado'),
+    dataStart:    dt('Data do Evento'),
+    dataEnd:      dtE('Data do Evento'),
+    dataMontagem: dt('Montagem'),
+    dataDesmontagem: dt('Desmontagem'),
+    dataVT:       dt('Data da VT'),
+    dataVenda:    dt('Data da Venda'),
+    // Classificação
+    tipos:        ms('Tipo de Evento'),
+    categorias:   ms('Categorização do Evento'),
+    vendaPerdida: sel('Venda Perdida?'),
+    // Status operacionais
+    artguide:     sel('ArtGuide Status'),
+    listaEquipe:  sel('Lista Equipe Status'),
+    listaEquip:   sel('Lista Equipamentos Status'),
+    fechaFornec:  sel('Fechar com Fornecedor Status'),
+    detEstr:      sel('Detalhar Estrutura Status'),
+    reuniaoExec:  sel('Reunião de Execuções Status'),
+    temposMov:    sel('Tempos Movimentos Status'),
+    artguideNA:   p['Criação e envio de Artguid']?.checkbox ? 'N/A' : '',
+    detEstrNA:    p['NA Detalhamento de Estruturas']?.checkbox ? 'N/A' : '',
   };
 }
 
