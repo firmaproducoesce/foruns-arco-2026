@@ -1,7 +1,7 @@
 const { Client } = require('@notionhq/client');
 
-// Banco de tarefas: Radar Operacional (real da Firma)
-const RADAR_DB = '25d0d85775f780f08c92000bd2294d89';
+// Banco real: "Gerenciamento de Atividades" (Radar Operacional da Firma)
+const RADAR_DB = '25d0d85775f78087b0beed6f8dab67d4';
 
 // IDs dos cards de evento
 const EVENT_PAGES = {
